@@ -330,9 +330,9 @@ def move_motor():
     GPIO.output(DIR_PIN, GPIO.HIGH)
     for i in range(PULSE_PER_REV):
         GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(0.00015625) # 180 RPM
+        time.sleep(0.000078125) # 180 RPM
         GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(0.00015625)
+        time.sleep(0.000078125)
     
 def main():
     """The application's entry point.
@@ -390,7 +390,7 @@ def main():
         if pipe_collision or 0 >= bird.y or bird.y >= WIN_HEIGHT - Bird.HEIGHT:
             done = True
         
-        for x in (0, WIN_WIDTH / 2):
+        for x in (0, WIN_WIDTH / 3):
             display_surface.blit(images['background'], (x, 0))
         
         while len(pipes) > 0 and not pipes[0].visible:
@@ -410,7 +410,7 @@ def main():
                 p.score_counted = True
         
         score_surface = score_font.render(str(score), True, (255, 255, 255))
-        score_x = WIN_WIDTH/2 - score_surface.get_width()/2
+        score_x = WIN_WIDTH/3 - score_surface.get_width()/3
         display_surface.blit(score_surface, (score_x, PipePair.PIECE_HEIGHT))
         
         pygame.display.flip()
