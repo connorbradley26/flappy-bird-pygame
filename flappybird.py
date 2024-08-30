@@ -328,9 +328,9 @@ def move_motor():
     GPIO.output(DIR_PIN, GPIO.HIGH)
     for i in range(PULSE_PER_REV):
         GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(0.0005)
+        time.sleep(0.00015625) # 180 RPM
         GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(0.0005)
+        time.sleep(0.00015625)
     
 def main():
     """The application's entry point.
