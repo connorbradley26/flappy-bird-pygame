@@ -31,8 +31,10 @@ GPIO.output(ENABLE_PIN, GPIO.LOW)
 
 FPS = 60
 ANIMATION_SPEED = 0.18  # pixels per millisecond
-WIN_WIDTH = 284 * 2     # BG image size: 284x512 px; tiled twice
-WIN_HEIGHT = 512
+# WIN_WIDTH = 284 * 2     # BG image size: 284x512 px; tiled twice
+# WIN_HEIGHT = 512
+WIN_WIDTH = 800
+WIN_HEIGHT = 600
 
 
 class Bird(pygame.sprite.Sprite):
