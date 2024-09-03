@@ -7,9 +7,11 @@ import os
 from random import randint
 from collections import deque
 
-import RPi.GPIO as GPIO
-import time
-import threading
+dev_mode = False
+if dev_mode:
+    import RPi.GPIO as GPIO
+    import time
+    import threading
 
 import pygame
 from pygame.locals import *
@@ -19,15 +21,13 @@ ENABLE_PIN = 16
 DIR_PIN = 20
 STEP_PIN = 21
 PULSE_PER_REV = 1600
+if dev_mode:
+    GPIO.setmode(GPIO.BCM) 
+    GPIO.setup(ENABLE_PIN, GPIO.OUT)
+    GPIO.setup(DIR_PIN, GPIO.OUT)
+    GPIO.setup(STEP_PIN, GPIO.OUT)
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(ENABLE_PIN, GPIO.OUT)
-GPIO.setup(DIR_PIN, GPIO.OUT)
-GPIO.setup(STEP_PIN, GPIO.OUT)
-
-GPIO.output(ENABLE_PIN, GPIO.LOW)
-
-
+    GPIO.output(ENABLE_PIN, GPIO.LOW)
 
 FPS = 60
 ANIMATION_SPEED = 0.18  # pixels per millisecond
@@ -327,12 +327,13 @@ def msec_to_frames(milliseconds, fps=FPS):
     return fps * milliseconds / 1000.0
 
 def move_motor():
-    GPIO.output(DIR_PIN, GPIO.HIGH)
-    for i in range(PULSE_PER_REV):
-        GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(0.000078125) # 180 RPM
-        GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(0.000078125)
+    if dev_mode:
+        GPIO.output(DIR_PIN, GPIO.HIGH)
+        for i in range(PULSE_PER_REV):
+            GPIO.output(STEP_PIN, GPIO.HIGH)
+            time.sleep(0.000078125) # 180 RPM
+            GPIO.output(STEP_PIN, GPIO.LOW)
+            time.sleep(0.000078125)
     
 def main():
     """The application's entry point.
@@ -343,7 +344,7 @@ def main():
     
     pygame.init()
     
-    display_surface = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption('Pygame Flappy Bird')
     
     clock = pygame.time.Clock()
@@ -376,7 +377,8 @@ def main():
                 paused = not paused
             elif e.type == MOUSEBUTTONUP or (e.type == KEYUP and
                     e.key in (K_UP, K_RETURN, K_SPACE)):
-                threading.Thread(target=move_motor).start()
+                if dev_mode:
+                    threading.Thread(target=move_motor).start()
                 bird.msec_to_climb = Bird.CLIMB_DURATION
             elif e.type == PipePair.ADD_EVENT:
                 pp = PipePair(images['pipe-end'], images['pipe-body'])
@@ -390,7 +392,7 @@ def main():
         if pipe_collision or 0 >= bird.y or bird.y >= WIN_HEIGHT - Bird.HEIGHT:
             done = True
         
-        for x in (0, WIN_WIDTH / 3):
+        for x in (0, WIN_WIDTH / 2):
             display_surface.blit(images['background'], (x, 0))
         
         while len(pipes) > 0 and not pipes[0].visible:
@@ -410,7 +412,7 @@ def main():
                 p.score_counted = True
         
         score_surface = score_font.render(str(score), True, (255, 255, 255))
-        score_x = WIN_WIDTH/3 - score_surface.get_width()/3
+        score_x = WIN_WIDTH/3 - score_surface.get_width()/2
         display_surface.blit(score_surface, (score_x, PipePair.PIECE_HEIGHT))
         
         pygame.display.flip()
